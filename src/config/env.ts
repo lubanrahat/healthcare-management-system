@@ -18,6 +18,10 @@ const envSchema = z.object({
   ACCESS_TOKEN_EXPIRES_IN: z.string(),
   REFRESH_TOKEN_SECRET: z.string().min(1, "REFRESH_TOKEN_SECRET is required"),
   REFRESH_TOKEN_EXPIRES_IN: z.string(),
+  //cloudinary
+  CLOUDINARY_CLOUD_NAME: z.string().min(1, "CLOUDINARY_CLOUD_NAME is required"),
+  CLOUDINARY_API_KEY: z.string().min(1, "CLOUDINARY_API_KEY is required"),
+  CLOUDINARY_API_SECRET: z.string().min(1, "CLOUDINARY_API_SECRET is required"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -50,6 +54,11 @@ export const config = {
     accessTokenSecret: env.ACCESS_TOKEN_SECRET,
     accessTokenExpires: env.ACCESS_TOKEN_EXPIRES_IN,
     refeshTokenSecret: env.REFRESH_TOKEN_SECRET,
-    refeshTokenExpires: env.REFRESH_TOKEN_EXPIRES_IN
-  }
+    refeshTokenExpires: env.REFRESH_TOKEN_EXPIRES_IN,
+  },
+  cloudinary: {
+    caloudinaryCloudName: env.CLOUDINARY_CLOUD_NAME,
+    caloudinaryApiKey: env.CLOUDINARY_API_KEY,
+    caloudinaryApiSecret: env.CLOUDINARY_API_SECRET,
+  },
 };
