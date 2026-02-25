@@ -1,0 +1,24 @@
+-- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'DOCTOR', 'PATIENT');
+
+-- CreateEnum
+CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'BLOCKED', 'DELETED');
+
+-- CreateEnum
+CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE', 'OTHER');
+
+-- CreateEnum
+CREATE TYPE "BloodGroup" AS ENUM ('A_POSITIVE', 'A_NEGATIVE', 'B_POSITIVE', 'B_NEGATIVE', 'AB_POSITIVE', 'AB_NEGATIVE', 'O_POSITIVE', 'O_NEGATIVE');
+
+-- CreateEnum
+CREATE TYPE "AppointmentStatus" AS ENUM ('SCHEDULED', 'INPROGRESS', 'COMPLETED', 'CANCELED');
+
+-- CreateEnum
+CREATE TYPE "PaymentStatus" AS ENUM ('PAID', 'UNPAID');
+
+-- AlterTable
+ALTER TABLE "user" ADD COLUMN     "deletedAt" TIMESTAMP(3),
+ADD COLUMN     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "needPasswordChange" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "role" "UserRole" NOT NULL DEFAULT 'PATIENT',
+ADD COLUMN     "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE';
