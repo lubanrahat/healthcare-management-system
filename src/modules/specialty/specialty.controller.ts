@@ -1,10 +1,20 @@
-import type { Specialty } from "../../../generated/prisma/client";
-import { prisma } from "../../lib/prisma";
+import type { Request, Response } from "express";
+import { catchAsync } from "../../shared/utils/async-handler.util";
+import HttpStatus from "../../shared/utils/http-status";
+import { ResponseUtil } from "../../shared/utils/response.util";
+import { SpecialtyService } from "./specialty.service";
 
-const createSpecialty = async (payload: Specialty): Promise<Specialty> => {
-    const specialty = await prisma.specialty.create({
-        data: payload
-    })
+const createSpecialty = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const result = await SpecialtyService.createSpecialty(payload);
+  return ResponseUtil.success(
+    res,
+    result,
+    "Specialty created successfully",
+    HttpStatus.CREATED,
+  );
+});
 
-    return specialty;
+export const SpecialtyController = {
+    createSpecialty
 }

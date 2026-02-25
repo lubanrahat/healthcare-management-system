@@ -33,7 +33,7 @@ function createApp(): Application {
   app.use(cookieParser());
 
   app.use("/api/v1", IndexRouter);
-
+  //Not found routes
   app.use((req: Request, res: Response) => {
     logger.warn(`Route not found: ${req.method} ${req.originalUrl}`);
     ResponseUtil.error(res, "Route not found", HttpStatus.NOT_FOUND);
