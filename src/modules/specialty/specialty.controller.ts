@@ -7,7 +7,7 @@ import { SpecialtyService } from "./specialty.service";
 const createSpecialty = catchAsync(async (req: Request, res: Response) => {
   const payload = {
     ...req.body,
-    icon: req.file?.path
+    icon: req.file?.path,
   };
   const result = await SpecialtyService.createSpecialty(payload);
   return ResponseUtil.success(
@@ -18,6 +18,29 @@ const createSpecialty = catchAsync(async (req: Request, res: Response) => {
   );
 });
 
+const getAllSpecialties = catchAsync(async (req: Request, res: Response) => {
+  const result = await SpecialtyService.getAllSpecialties();
+  return ResponseUtil.success(
+    res,
+    result,
+    "Specialties fetched successfully",
+    HttpStatus.OK,
+  );
+});
+
+const deleteSpecialty = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await SpecialtyService.deleteSpecialty(id as string);
+  return ResponseUtil.success(
+    res,
+    result,
+    "Specialty deleted successfully",
+    HttpStatus.OK,
+  );
+});
+
 export const SpecialtyController = {
-    createSpecialty
-}
+  createSpecialty,
+  getAllSpecialties,
+  deleteSpecialty,
+};

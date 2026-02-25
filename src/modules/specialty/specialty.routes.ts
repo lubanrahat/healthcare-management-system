@@ -6,16 +6,22 @@ import { checkAuth } from "../../shared/middlewares/checkAuth";
 import { UserRole } from "../../../generated/prisma/enums";
 import { multerUpload } from "../../config/multer.config";
 
-
 export default function registerSpecialtyRoutes(): Router {
   const router = express.Router();
   router.post(
     "/",
-    // checkAuth(UserRole.ADMIN,UserRole.SUPER_ADMIN),
+    checkAuth(UserRole.ADMIN,UserRole.SUPER_ADMIN),
     multerUpload.single("file"),
     validateRequest({ body: SpecialtyValidation.createSpecialtyZodSchema }),
-    SpecialtyController.createSpecialty
+    SpecialtyController.createSpecialty,
   );
-  
+
+  router.get("/", SpecialtyController.getAllSpecialties);
+  router.delete(
+    "/:id",
+    checkAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+    SpecialtyController.deleteSpecialty,
+  );
+
   return router;
 }
