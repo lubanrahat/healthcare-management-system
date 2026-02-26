@@ -31,5 +31,27 @@ export default function registerAuthRoutes(): Router {
 
   router.post("/refresh-token", AuthController.getNewToken);
 
+  router.post(
+    "/change-password",
+    checkAuth(
+      UserRole.ADMIN,
+      UserRole.DOCTOR,
+      UserRole.PATIENT,
+      UserRole.SUPER_ADMIN,
+    ),
+    AuthController.changePassword,
+  );
+  
+  router.post(
+    "/logout",
+    checkAuth(
+      UserRole.ADMIN,
+      UserRole.DOCTOR,
+      UserRole.PATIENT,
+      UserRole.SUPER_ADMIN,
+    ),
+    AuthController.logoutUser,
+  );
+
   return router;
 }

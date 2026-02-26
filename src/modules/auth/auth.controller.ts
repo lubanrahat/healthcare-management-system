@@ -139,4 +139,6 @@ export const AuthController = {
   loginUser,
   getMe,
   getNewToken,
+  changePassword,
+  logoutUser
 };
