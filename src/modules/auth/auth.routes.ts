@@ -2,6 +2,8 @@ import express, { type Router } from "express";
 import { AuthController } from "./auth.controller";
 import { validateRequest } from "../../shared/middlewares/validate.middleware";
 import { AuthValidation } from "./auth.validation";
+import { checkAuth } from "../../shared/middlewares/checkAuth";
+import { UserRole } from "../../../generated/prisma/enums";
 
 export default function registerAuthRoutes(): Router {
   const router = express.Router();
@@ -15,5 +17,19 @@ export default function registerAuthRoutes(): Router {
     validateRequest({ body: AuthValidation.loginSchema }),
     AuthController.loginUser,
   );
+
+  router.get(
+    "/me",
+    checkAuth(
+      UserRole.ADMIN,
+      UserRole.DOCTOR,
+      UserRole.PATIENT,
+      UserRole.SUPER_ADMIN,
+    ),
+    AuthController.getMe,
+  );
+
+  router.post("/refresh-token", AuthController.getNewToken);
+
   return router;
 }

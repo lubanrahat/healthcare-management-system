@@ -1,10 +1,13 @@
+import type { JwtPayload } from "jsonwebtoken";
 import { UserStatus } from "../../../generated/prisma/enums";
+import { config } from "../../config/env";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
 import AppError from "../../shared/errors/app-error";
 import ErrorCodes from "../../shared/errors/error-codes";
 import type { IRequestUser } from "../../shared/interfaces/requestUser.interface";
 import HttpStatus from "../../shared/utils/http-status";
+import { jwtUtils } from "../../shared/utils/jwt";
 import { tokenUtils } from "../../shared/utils/token";
 import type {
   ILoginUserPayload,
@@ -145,8 +148,79 @@ const getMe = async (user: IRequestUser) => {
   return isUserExists;
 };
 
+const getNewToken = async (refreshToken: string, sessionToken: string) => {
+  const isSessionTokenExists = await prisma.session.findUnique({
+    where: {
+      token: sessionToken,
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  if (!isSessionTokenExists) {
+    throw new AppError(
+      "Invalid session token",
+      HttpStatus.UNAUTHORIZED,
+      ErrorCodes.UNAUTHORIZED,
+    );
+  }
+
+  const verifiedRefreshToken = jwtUtils.verifyToken(
+    refreshToken,
+    config.jwt.refeshTokenSecret,
+  );
+  if (!verifiedRefreshToken.success && verifiedRefreshToken.error) {
+    throw new AppError(
+      "Invalid refresh token",
+      HttpStatus.UNAUTHORIZED,
+      ErrorCodes.UNAUTHORIZED,
+    );
+  }
+
+  const data = verifiedRefreshToken.data as JwtPayload;
+
+  const newAccessToken = tokenUtils.getAccessToken({
+    userId: data.userId,
+    role: data.role,
+    name: data.name,
+    email: data.email,
+    status: data.status,
+    isDeleted: data.isDeleted,
+    emailVerified: data.emailVerified,
+  });
+
+  const newRefreshToken = tokenUtils.getRefreshToken({
+    userId: data.userId,
+    role: data.role,
+    name: data.name,
+    email: data.email,
+    status: data.status,
+    isDeleted: data.isDeleted,
+    emailVerified: data.emailVerified,
+  });
+
+  const { token } = await prisma.session.update({
+    where: {
+      token: sessionToken,
+    },
+    data: {
+      token: sessionToken,
+      expiresAt: new Date(Date.now() + 60 * 60 * 60 * 24 * 1000),
+      updatedAt: new Date(),
+    },
+  });
+
+  return {
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+    sessionToken: token,
+  };
+};
+
 export const AuthService = {
   registerPatient,
   loginUser,
-  getMe
+  getMe,
+  getNewToken,
 };

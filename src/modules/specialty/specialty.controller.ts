@@ -3,6 +3,8 @@ import { catchAsync } from "../../shared/utils/async-handler.util";
 import HttpStatus from "../../shared/utils/http-status";
 import { ResponseUtil } from "../../shared/utils/response.util";
 import { SpecialtyService } from "./specialty.service";
+import AppError from "../../shared/errors/app-error";
+import ErrorCodes from "../../shared/errors/error-codes";
 
 const createSpecialty = catchAsync(async (req: Request, res: Response) => {
   const payload = {
