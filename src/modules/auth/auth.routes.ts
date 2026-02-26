@@ -58,5 +58,9 @@ export default function registerAuthRoutes(): Router {
   router.post("/forget-password", AuthController.forgetPassword);
   router.post("/reset-password", AuthController.resetPassword);
 
+  router.get("/login/google", AuthController.googleLogin);
+  router.get("/google/success", AuthController.googleLoginSuccess);
+  router.get("/oauth/error", AuthController.handleOAuthError);
+
   return router;
 }

@@ -13,9 +13,15 @@ import { config } from "./config/env";
 import { errorHandler } from "./shared/middlewares/global-error.middleware";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
+import path from "node:path";
 
 function createApp(): Application {
   const app: Application = express();
+
+  // app.set("query parser", (str: string) => qs.parse(str));
+
+  app.set("view engine", "ejs");
+  app.set("views", path.join(__dirname, "../src/templates"));
 
   app.use(
     cors({
@@ -26,7 +32,7 @@ function createApp(): Application {
     }),
   );
 
-  app.use("/api/auth", toNodeHandler(auth))
+  app.use("/api/auth", toNodeHandler(auth));
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -39,7 +45,7 @@ function createApp(): Application {
     ResponseUtil.error(res, "Route not found", HttpStatus.NOT_FOUND);
   });
 
-  app.use(errorHandler)
+  app.use(errorHandler);
 
   return app;
 }
