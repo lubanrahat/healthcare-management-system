@@ -7,6 +7,7 @@ import { UserRole } from "../../../generated/prisma/enums";
 
 export default function registerAuthRoutes(): Router {
   const router = express.Router();
+
   router.post(
     "/register",
     validateRequest({ body: AuthValidation.registerSchema }),
@@ -41,7 +42,7 @@ export default function registerAuthRoutes(): Router {
     ),
     AuthController.changePassword,
   );
-  
+
   router.post(
     "/logout",
     checkAuth(
@@ -52,6 +53,8 @@ export default function registerAuthRoutes(): Router {
     ),
     AuthController.logoutUser,
   );
+
+  router.post("/verify-email", AuthController.verifyEmail);
 
   return router;
 }

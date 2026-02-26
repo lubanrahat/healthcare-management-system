@@ -22,6 +22,14 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().min(1, "CLOUDINARY_CLOUD_NAME is required"),
   CLOUDINARY_API_KEY: z.string().min(1, "CLOUDINARY_API_KEY is required"),
   CLOUDINARY_API_SECRET: z.string().min(1, "CLOUDINARY_API_SECRET is required"),
+  //Google
+  GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID is required"),
+  GOOGLE_CLIENT_SECRET: z.string().min(1, "GOOGLE_CLIENT_SECRET is required"),
+  //Mail trap
+  MAILTRAP_HOST: z.string().min(1, "MAILTRAP_HOST is required"),
+  MAILTRAP_PORT: z.coerce.number().default(2525),
+  MAILTRAP_USER: z.string().min(1, "MAILTRAP_USER is required"),
+  MAILTRAP_PASS: z.string().min(1, "MAILTRAP_PASS is required"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -60,5 +68,15 @@ export const config = {
     caloudinaryCloudName: env.CLOUDINARY_CLOUD_NAME,
     caloudinaryApiKey: env.CLOUDINARY_API_KEY,
     caloudinaryApiSecret: env.CLOUDINARY_API_SECRET,
+  },
+  google: {
+    googleClientId: env.GOOGLE_CLIENT_ID,
+    googleClientSecret: env.GOOGLE_CLIENT_SECRET,
+  },
+  mailTrap: {
+    host: env.MAILTRAP_HOST,
+    port: env.MAILTRAP_PORT,
+    user: env.MAILTRAP_USER,
+    pass: env.MAILTRAP_PASS,
   },
 };

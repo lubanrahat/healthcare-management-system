@@ -14,6 +14,7 @@ import type {
   ILoginUserPayload,
   IRegisterPatientPayload,
 } from "./auth.interface";
+import { logger } from "../../shared/logger/logger";
 
 const registerPatient = async (payload: IRegisterPatientPayload) => {
   const { name, email, password } = payload;
@@ -230,7 +231,11 @@ const changePassword = async (
   });
 
   if (!session) {
-    throw new AppError("Invalid session token", HttpStatus.UNAUTHORIZED);
+    throw new AppError(
+      "Invalid session token",
+      HttpStatus.UNAUTHORIZED,
+      ErrorCodes.UNAUTHORIZED,
+    );
   }
 
   const { currentPassword, newPassword } = payload;
@@ -287,11 +292,31 @@ const changePassword = async (
 const logoutUser = async (sessionToken: string) => {
   const result = await auth.api.signOut({
     headers: new Headers({
-      Authorization: `Bearer ${sessionToken}`,
+      cookie: `better-auth.session_token=${sessionToken}`,
     }),
   });
 
   return result;
+};
+
+const verifyEmail = async (email: string, otp: string) => {
+  const result = await auth.api.verifyEmailOTP({
+    body: {
+      email,
+      otp,
+    },
+  });
+
+  if (result.status && !result.user.emailVerified) {
+    await prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        emailVerified: true,
+      },
+    });
+  }
 };
 
 export const AuthService = {
@@ -301,4 +326,5 @@ export const AuthService = {
   getNewToken,
   changePassword,
   logoutUser,
+  verifyEmail,
 };
