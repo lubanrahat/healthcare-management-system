@@ -7,6 +7,7 @@ import HttpStatus from "../../shared/utils/http-status";
 import ErrorCodes from "../../shared/errors/error-codes";
 import AppError from "../../shared/errors/app-error";
 import { logger } from "../../shared/logger/logger";
+import { CookieUtils } from "../../shared/utils/cookie";
 
 const registerPatient = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
@@ -79,6 +80,56 @@ const getNewToken = catchAsync(async (req: Request, res: Response) => {
     res,
     { accessToken, refreshToken: newRefreshToken, sessionToken },
     "New tokens generated successfully",
+    HttpStatus.OK,
+  );
+});
+
+const changePassword = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const betterAuthSessionToken = req.cookies["better-auth.session_token"];
+
+  const result = await AuthService.changePassword(
+    payload,
+    betterAuthSessionToken,
+  );
+
+  const { accessToken, refreshToken, token } = result;
+
+  tokenUtils.setAccessTokenCookie(res, accessToken);
+  tokenUtils.setRefreshTokenCookie(res, refreshToken);
+  tokenUtils.setBetterAuthSessionCookie(res, token as string);
+
+  return ResponseUtil.success(
+    res,
+    result,
+    "Password changed successfully",
+    HttpStatus.OK,
+  );
+});
+
+const logoutUser = catchAsync(async (req: Request, res: Response) => {
+  const betterAuthSessionToken = req.cookies["better-auth.session_token"];
+  const result = await AuthService.logoutUser(betterAuthSessionToken);
+  CookieUtils.clearCookie(res, "accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+  CookieUtils.clearCookie(res, "refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+  CookieUtils.clearCookie(res, "better-auth.session_token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+
+  return ResponseUtil.success(
+    res,
+    result,
+    "User logged out successfully",
     HttpStatus.OK,
   );
 });

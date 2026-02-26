@@ -17,7 +17,6 @@ export const checkAuth =
         req,
         "better-auth.session_token",
       );
-      logger.info(`sessionToken -> ${sessionToken}`)
       if (!sessionToken) {
         throw new AppError(
           "Unauthorized access! No session token provided.",
