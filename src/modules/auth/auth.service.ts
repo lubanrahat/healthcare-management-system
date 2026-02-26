@@ -319,6 +319,105 @@ const verifyEmail = async (email: string, otp: string) => {
   }
 };
 
+const forgetPassword = async (email: string) => {
+  const isUserExist = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!isUserExist) {
+    throw new AppError(
+      "User not found",
+      HttpStatus.NOT_FOUND,
+      ErrorCodes.NOT_FOUND,
+    );
+  }
+
+  if (!isUserExist.emailVerified) {
+    throw new AppError(
+      "Email not verified",
+      HttpStatus.BAD_REQUEST,
+      ErrorCodes.INTERNAL_ERROR,
+    );
+  }
+
+  if (isUserExist.isDeleted || isUserExist.status === UserStatus.DELETED) {
+    throw new AppError(
+      "User not found",
+      HttpStatus.NOT_FOUND,
+      ErrorCodes.NOT_FOUND,
+    );
+  }
+
+  await auth.api.requestPasswordResetEmailOTP({
+    body: {
+      email,
+    },
+  });
+};
+
+const resetPassword = async (
+  email: string,
+  otp: string,
+  newPassword: string,
+) => {
+  const isUserExist = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!isUserExist) {
+    throw new AppError(
+      "User not found",
+      HttpStatus.NOT_FOUND,
+      ErrorCodes.NOT_FOUND,
+    );
+  }
+
+  if (!isUserExist.emailVerified) {
+    throw new AppError(
+      "Email not verified",
+      HttpStatus.BAD_REQUEST,
+      ErrorCodes.INTERNAL_ERROR,
+    );
+  }
+
+  if (isUserExist.isDeleted || isUserExist.status === UserStatus.DELETED) {
+    throw new AppError(
+      "User not found",
+      HttpStatus.NOT_FOUND,
+      ErrorCodes.NOT_FOUND,
+    );
+  }
+
+  await auth.api.resetPasswordEmailOTP({
+    body: {
+      email,
+      otp,
+      password: newPassword,
+    },
+  });
+
+  if (isUserExist.needPasswordChange) {
+    await prisma.user.update({
+      where: {
+        id: isUserExist.id,
+      },
+      data: {
+        needPasswordChange: false,
+      },
+    });
+  }
+
+  await prisma.session.deleteMany({
+    where: {
+      userId: isUserExist.id,
+    },
+  });
+};
+
 export const AuthService = {
   registerPatient,
   loginUser,
@@ -327,4 +426,6 @@ export const AuthService = {
   changePassword,
   logoutUser,
   verifyEmail,
+  forgetPassword,
+  resetPassword,  
 };

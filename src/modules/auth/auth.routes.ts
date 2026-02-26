@@ -55,6 +55,8 @@ export default function registerAuthRoutes(): Router {
   );
 
   router.post("/verify-email", AuthController.verifyEmail);
+  router.post("/forget-password", AuthController.forgetPassword);
+  router.post("/reset-password", AuthController.resetPassword);
 
   return router;
 }
